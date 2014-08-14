@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Theme Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="dist/css/bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="examples/theme/theme.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]>
+    <script src="assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            //ListAllCandidates();
+
+            var submitData=document.getElementById('submitData');
+            submitData.addEventListener('click', function (event) {
+                newCandidate(event);
+            });
+            var listData=document.getElementById('listData');
+            listData.addEventListener('click', function (event) {
+                ListAllCandidates(event);
+            });
+
+            var updateData=document.getElementById('btnupdate');
+            updateData.addEventListener('click', function (event) {
+                var idValue=document.getElementById('idvalue');
+                updateCandidate(event,idValue.value);
+            });
+
+            var deleteData=document.getElementById('btndelete');
+            deleteData.addEventListener('click', function (event) {
+                var idValue=document.getElementById('idvalue1');
+                deleteCandidate(event,idValue.value);
+            });
+
+            var findData=document.getElementById('findData');
+            findData.addEventListener('click', function (event) {
+                findCandidate(event);
+            });
+
+
+            function ListAllCandidates() {
+                var xhr=new XMLHttpRequest();
+                xhr.open('GET', '/candidates');
+                xhr.onreadystatechange = function () {
+                    if (xhr.status === 200 && xhr.readyState === 4) {
+                        console.log(xhr.responseText);
+                        var obj=JSON.parse(xhr.responseText);
+                        var divAll=document.getElementById('all');
+                        var tbody=document.getElementsByTagName('tbody')[0];
+                        tbody.innerHTML='';
+                        console.log(obj);
+                        var cnt=1;
+                        obj.forEach(function (data){
+                            var tr=document.createElement('tr');
+                            var td=document.createElement('td');
+                            td.innerHTML=cnt++;
+                            tr.appendChild(td);
+
+                            td=document.createElement('td');
+                            td.innerHTML=data.name;
+                            tr.appendChild(td);
+
+                            td=document.createElement('td');
+                            td.innerHTML=data.email;
+                            tr.appendChild(td);
+
+                            td=document.createElement('td');
+                            var btn=document.createElement('button');
+                            btn.className='btn btn-default btn-xs';
+                            btn.setAttribute("data-toggle","modal");
+                            btn.setAttribute("data-target","#deleteModal");
+                            btn.addEventListener('click', function (event) {
+                                var btnxhr=new XMLHttpRequest();
+                                btnxhr.open('GET', '/candidates/'+data._id);
+                                btnxhr.onreadystatechange = function () {
+                                    if (btnxhr.status === 200 && btnxhr.readyState === 4) {
+                                        console.log(btnxhr.responseText);
+                                        var obj = JSON.parse(btnxhr.responseText);
+                                        //console.log(obj[0].name+' '+ obj[0].email);
+                                        var spName=document.getElementById('spanname');
+                                        var spEmail=document.getElementById('spanemail');
+                                        var inpId=document.getElementById('idvalue1');
+                                        spName.innerHTML=obj[0].name;
+                                        spEmail.innerHTML=obj[0].email;
+                                        inpId.value=obj[0]._id;
+                                    }
+                                }
+                                btnxhr.send();
+                            });
+
+                            var span=document.createElement('span');
+                            span.className='glyphicon glyphicon-trash';
+                            btn.appendChild(span);
+                            td.appendChild(btn);
+
+                            btn=document.createElement('button');
+                            btn.className='btn btn-default btn-xs';
+                            span=document.createElement('span');
+                            btn.setAttribute("data-toggle","modal");
+                            btn.setAttribute("data-target","#myModal");
+                            //btn.setAttribute('name','edit');
+                            console.log(data._id);
+                            btn.addEventListener('click', function (event) {
+                                var btnxhr=new XMLHttpRequest();
+                                btnxhr.open('GET', '/candidates/'+data._id);
+                                btnxhr.onreadystatechange = function () {
+                                    if (btnxhr.status === 200 && btnxhr.readyState === 4) {
+                                        console.log(btnxhr.responseText);
+                                        var obj = JSON.parse(btnxhr.responseText);
+                                        //console.log(obj[0].name+' '+ obj[0].email);
+                                        var inpName=document.getElementById('inpnameedit');
+                                        var inpEmail=document.getElementById('inpemailedit');
+                                        var inpId=document.getElementById('idvalue');
+                                        inpName.value=obj[0].name;
+                                        inpEmail.value=obj[0].email;
+                                        inpId.value=obj[0]._id;
+
+
+
+                                    }
+                                }
+                                btnxhr.send();
+                            });
+                            span.className='glyphicon glyphicon-pencil';
+
+                            btn.appendChild(span);
+                            td.appendChild(btn);
+                            tr.appendChild(td);
+
+                            btn=document.createElement('button');
+                            btn.className='btn btn-default btn-xs';
+                            span=document.createElement('span');
+                            span.className='glyphicon glyphicon-plus';
+                            btn.appendChild(span);
+                            td.appendChild(btn);
+                            tr.appendChild(td);
+
+                            tbody.appendChild(tr);
+                        });
+                        var elm = document.getElementsByName('edit');
+                        console.log(elm[0]);
+                        console.log(elm.length);
+                    }
+                };
+                xhr.send();
+            }
+
+            function newCandidate(event){
+                event.preventDefault();
+                var xhr=new XMLHttpRequest();
+                var self = event.target;
+                xhr.open('POST', '/candidates');
+                xhr.setRequestHeader('Content-type', 'application/json');
+                var inpName=document.getElementById('inpname');
+                var inpEmail=document.getElementById('inpemail');
+
+                var obj = {
+                    name: inpName.value,
+                    email: inpEmail.value
+                };
+                xhr.send(JSON.stringify(obj));
+                inpName.value='';
+                inpEmail.value='';
+            }
+
+            function updateCandidate(event,idValue){
+                event.preventDefault();
+                var xhr=new XMLHttpRequest();
+                var self = event.target;
+                xhr.open('PUT', '/candidates/'+idValue);
+                xhr.setRequestHeader('Content-type', 'application/json');
+                var inpName=document.getElementById('inpnameedit');
+                var inpEmail=document.getElementById('inpemailedit');
+
+                var obj = {
+                    name: inpName.value,
+                    email: inpEmail.value,
+                    id:idValue
+                };
+                xhr.send(JSON.stringify(obj));
+                inpName.value='';
+                inpEmail.value='';
+            }
+
+            function deleteCandidate(event,idValue){
+                event.preventDefault();
+                var xhr=new XMLHttpRequest();
+                var self = event.target;
+                xhr.open('DELETE', '/candidates/'+idValue);
+                xhr.setRequestHeader('Content-type', 'application/json');
+                xhr.send();
+            }
+
+            function findCandidate() {
+                var inpName=document.getElementById('inpfindname');
+                var inpEmail=document.getElementById('inpfindemail');
+                xhr.send(JSON.stringify(obj));
+                inpName.value='';
+                inpEmail.value='';
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/candidates/');
+                xhr.onreadystatechange = function () {
+                    if (xhr.status === 200 && xhr.readyState === 4) {
+                        console.log(xhr.responseText);
+                        var obj = JSON.parse(xhr.responseText);
+
+                    }
+                }
+                xhr.send();
+            }
+        });
+    </script>
+
+</head>
+
+<body role="document">
+
+<!-- Fixed navbar -->
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Candidates</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#AllCandidates">All Candidates</a></li>
+                <li><a href="#FindCandidate">Find Candidate</a></li>
+                <li><a href="#NewCandidate">New Candidate</a></li>
+                <li><a href="#UpdateCandidate">Update Candidate</a></li>
+                <li><a href="#DeleteCandidate">Delete Candidate</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+
+<div class="container theme-showcase" role="main">
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron" id="NewCandidate">
+        <h1>New Candidate</h1>
+        <p>
+        <div class="input-group">
+            <span class="input-group-addon">Name : </span>
+            <input type="text" class="form-control" placeholder="candidate Name ..." id="inpname">
+        </div>
+        <br/>
+        <div class="input-group">
+            <span class="input-group-addon">Email : </span>
+            <input type="text" class="form-control" placeholder="Candidate Email ... " id="inpemail">
+        </div>
+
+        </p>
+        <p><a href="#NewCandidate" class="btn btn-primary btn-lg" role="button" id="submitData">New Candidate &raquo;</a></p>
+    </div>
+
+    <div class="jumbotron" id="FindCandidate">
+        <h1>Find Candidate</h1>
+        <p>
+        <div class="input-group">
+            <span class="input-group-addon">Name : </span>
+            <input type="text" class="form-control" placeholder="candidate Name ..." id="inpfindname">
+        </div>
+        <br/>
+        <div class="input-group">
+            <span class="input-group-addon">Email : </span>
+            <input type="text" class="form-control" placeholder="Candidate Email ... " id="inpfindemail">
+        </div>
+        </p>
+        <p><a href="#FindCandidate" class="btn btn-primary btn-lg" role="button" id="findData">Find Candidate &raquo;</a></p>
+    </div>
+
+<div class="jumbotron" id="AllCandidates">
+    <h1>All Candidates</h1>
+    <div id="all">
+
+    </div>
+
+    <!-- Modal Update Data-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Update Data</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">Name : </span>
+                        <input type="text" class="form-control" placeholder="candidate Name ..." id="inpnameedit">
+                    </div>
+                    <br/>
+                    <input type="hidden" id="idvalue"/>
+                    <div class="input-group">
+                        <span class="input-group-addon">Email : </span>
+                        <input type="text" class="form-control" placeholder="Candidate Email ... " id="inpemailedit">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnupdate">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Delete-->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Delete Data</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">Name : </span>
+                        <span class="input-group-addon" id="spanname"></span>
+                    </div>
+                    <br/>
+                    <input type="hidden" id="idvalue1"/>
+                    <div class="input-group">
+                        <span class="input-group-addon">Email : </span>
+                        <span class="input-group-addon" id="spanemail"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    Are you sure to delete?
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="btndelete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Panel heading</div>
+
+        <!-- Table -->
+        <table class="table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th> Name </th>
+                <th> Email </th>
+                <th> Action </th>
+
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+    <p><a href="#AllCandidates" class="btn btn-primary btn-lg" role="button" id="listData">List All Candidates &raquo;</a></p>
+</div>
+
+
+<div class="jumbotron" id="UpdateCandidate">
+    <h1>Update Candidate</h1>
+    <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+    <p><a href="#" class="btn btn-primary btn-lg" role="button">Learn more &raquo;</a></p>
+</div>
+<div class="jumbotron" id="DeleteCandidate">
+    <h1>Delete Candidate</h1>
+    <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+    <p><a href="#" class="btn btn-primary btn-lg" role="button">Learn more &raquo;</a></p>
+</div>
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="dist/js/bootstrap.min.js"></script>
+<script src="assets/js/docs.min.js"></script>
+</body>
+</html>
