@@ -21,6 +21,22 @@ router.get('/candidates/:id', function(req, res){
         res.json(data);
     });
 });
+router.get('/findcandidates', function(req, res){
+    var obj={};
+    if (req.query.name!=''){
+        obj.name=req.query.name;
+    }
+    if (req.query.email!=''){
+        obj.email=req.query.email;
+    }
+    Candidate.find(obj, function(err, data){
+        console.log(req.params.id);
+        res.json(data);
+    });
+    /*console.log(req.query.name);
+    console.log(obj);*/
+
+});
 router.post('/candidates', function (req, res) {
     console.log(req.body);
 

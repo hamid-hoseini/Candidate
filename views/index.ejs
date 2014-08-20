@@ -67,12 +67,12 @@
                 xhr.open('GET', '/candidates');
                 xhr.onreadystatechange = function () {
                     if (xhr.status === 200 && xhr.readyState === 4) {
-                        console.log(xhr.responseText);
+                        //console.log(xhr.responseText);
                         var obj=JSON.parse(xhr.responseText);
                         var divAll=document.getElementById('all');
                         var tbody=document.getElementsByTagName('tbody')[0];
                         tbody.innerHTML='';
-                        console.log(obj);
+                        //console.log(obj);
                         var cnt=1;
                         obj.forEach(function (data){
                             var tr=document.createElement('tr');
@@ -138,9 +138,6 @@
                                         inpName.value=obj[0].name;
                                         inpEmail.value=obj[0].email;
                                         inpId.value=obj[0]._id;
-
-
-
                                     }
                                 }
                                 btnxhr.send();
@@ -153,6 +150,9 @@
 
                             btn=document.createElement('button');
                             btn.className='btn btn-default btn-xs';
+                            btn.addEventListener('click', function () {
+                               window.location = '#NewCandidate';
+                            });
                             span=document.createElement('span');
                             span.className='glyphicon glyphicon-plus';
                             btn.appendChild(span);
@@ -218,16 +218,52 @@
             function findCandidate() {
                 var inpName=document.getElementById('inpfindname');
                 var inpEmail=document.getElementById('inpfindemail');
-                xhr.send(JSON.stringify(obj));
-                inpName.value='';
-                inpEmail.value='';
+
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/candidates/');
+                xhr.open('GET', '/findcandidates?name='+inpName.value+'&email='+inpEmail.value);
                 xhr.onreadystatechange = function () {
                     if (xhr.status === 200 && xhr.readyState === 4) {
                         console.log(xhr.responseText);
                         var obj = JSON.parse(xhr.responseText);
+                        console.log(obj);
+                        var divfind=document.getElementById('divfind');
+                        divfind.innerHTML='';
+                        var table=document.createElement('table');
+                        table.className='table';
+                        var thead=document.createElement('thead');
+                        var tr=document.createElement('tr');
+                        var th=document.createElement('th');
+                        th.innerHTML='#';
+                        tr.appendChild(th);
+                        th=document.createElement('th');
+                        th.innerHTML='Name';
+                        tr.appendChild(th);
+                        th=document.createElement('th');
+                        th.innerHTML='Email';
+                        tr.appendChild(th);
+                        thead.appendChild(tr);
+                        table.appendChild(thead);
+                        var tbody=document.createElement('tbody');
+                        table.appendChild(tbody);
+                        tbody.innerHTML='';
 
+                        var cnt=1;
+                        obj.forEach(function (data) {
+                            var tr = document.createElement('tr');
+                            var td = document.createElement('td');
+                            td.innerHTML = cnt++;
+                            tr.appendChild(td);
+
+                            td = document.createElement('td');
+                            td.innerHTML = data.name;
+                            tr.appendChild(td);
+
+                            td = document.createElement('td');
+                            td.innerHTML = data.email;
+                            tr.appendChild(td);
+                            tbody.appendChild(tr);
+                        });
+                        divfind.appendChild(table);
                     }
                 }
                 xhr.send();
@@ -297,6 +333,11 @@
         </div>
         </p>
         <p><a href="#FindCandidate" class="btn btn-primary btn-lg" role="button" id="findData">Find Candidate &raquo;</a></p>
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Finding Result</div>
+            <div id="divfind"></div>
+        </div>
     </div>
 
 <div class="jumbotron" id="AllCandidates">
